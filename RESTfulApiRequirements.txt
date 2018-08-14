@@ -1,0 +1,183 @@
+Statement of (API) Purpose:
+  1. To expose the availability of versioned, downloadable GIS GeoPackage (bundles) to the internet/mobile eco-system
+  2.a To provide admin (secured) maintenance of the *availability* of the same
+  2.b (optional) To provide admin (secured) maintenance of GeoPackage file cloud storage
+
+Definitions:
+  "GIS": Geographical Information Systems
+  "GeoPackage": self-contained self-contained GIS coordinate system with accompanying geometries stored in sqlite-compatible database file
+  "GeoPackage Bundle": Tegola Mobile context-specific term used to describe related resources (geopackage file, Tegola MVT server config file, list of mobile-device-local-environment-variable-name tokens) required to consume/utilize (render/decode geometries in) GeoPackage by locally embedded Tegola MVT within Tegola Mobile on mobile device
+
+
+Requirements:
+
+R.0.a:
+  Statement:
+    API shall be implemented in Kotlin
+
+R.0.b
+  Statement:
+    API implementation shall not reinvent the wheel
+  Fulfillment/Dependencies:
+    maven dep mgr and build tools
+    leverage Spring Framework/Sping-Boot
+
+R.0.c:
+  Statement:
+    Root of API shall be exposed via "server.servlet.context-path=/tegola-mobile"
+  Fulfillment/Dependencies:
+    add "server.servlet.context-path=/tegola-mobile" to Spring-Boot application.properties resources file
+
+R.0.d:
+  Statement:
+    API shall be hosted in tomcat 8.0 on AWS EC2
+  Fulfillment/Dependencies:
+    stand up AWS EC2 instance
+    tomcat 8.0 installation on EC2 instance
+    maven build target to web application archive (war) --> pom.xml: "<packaging>war</packaging>"
+
+R.0.e:
+  Statement:
+    API datastore shall be hosted in MySQL on same AWS EC2 instance
+  Fulfillment/Dependencies:
+    MySQL installation on EC2 instance
+
+R.0.e:
+  Statement
+    GeoPackage files shall be hosted on AWS S3
+  Fulfillment/Dependencies:
+    reference/access GeoPackage files already stored on pre-existing AWS S3 bucket
+
+R.1:
+  Statement:
+    API shall provide function to read available GeoPackage-Bundle names
+  Fulfillment/Dependencies:
+    SpringMVC REST-implementation:
+      request: (unsecured) GET /geopackagebundles
+        headers:
+          Accept: application/json, application/xml
+      response:
+        headers:
+          Content-Type: application/json, application/xml
+        body:
+          JSON|XML:
+            list<geopackagebundle_name>
+
+R.2:
+  Statement:
+    API shall provide function to read details of named GeoPackage-Bundle
+  Fulfillment/Dependencies:
+    SpringMVC REST-implementation:
+      request: (unsecured) GET /geopackagebundles/{geopackagebundle_name}
+        headers:
+          Accept: application/json, application/xml
+      response (if geopackage bundle exists):
+        headers:
+          Content-Type: application/json, application/xml
+        body:
+          JSON|XML:
+            "toml": {tegola_toml_s3_file_url, tegola_toml_s3_file_md5, list<tegola_toml_env_var_names>}  //note that this requires toml file stored on s3 to now contain md5 checksum metadata header - use "x-amz-meta-md5" custom metadata
+            "geopackages": list<{geopackage_s3_file_url, geopackage_s3_file_md5}>  //note that this requires geopackage file stored on s3 to now contain md5 checksum metadata header - use "x-amz-meta-md5" custom metadata
+      response (if geopackage bundle does not exist):
+        headers:
+          Content-Type: application/json, application/xml
+        status:
+          500
+        body:
+          "error-code": 3
+          "message": "GeoPackage Bundle %s does not exist"
+R.3:
+  Statement:
+    API shall provide function for secured login and generate blowfish JWT authorization token for use of secured API resources (/geopackagebundles/admin/**)
+Fulfillment/Dependencies:
+  SpringMVC REST-implementation w/ Spring Security (Authentication) and io.jsonwebtoken jjwt artifact:
+    request: (unsecured) POST /geopackagebundles-admin/login
+      headers:
+        Content-Type: application/json, application/xml
+        Accept: application/json, application/xml
+      body:
+        JSON|XML:
+          "username": admin_username
+          "password": admin_password
+    response (successful auth):
+      headers:
+        Authorization: Bearer <JSON Web Token (from jjwt dep)> //client shall cache value locally
+      status:
+        200
+    response (failed auth):
+      status:
+        403
+
+R.4:
+  Statement:
+    API shall provide (secured/authorized) function to create details for available GeoPackage-Bundle
+  Fulfillment/Dependencies:
+    SpringMVC REST-implementation w/ Spring Security (http config to specify authorized path and http method):
+      request: (secured) POST /geopackagebundles
+        headers:
+          Authorization: Bearer <JSON Web Token> //client shall use value cached locally (on successful auth)
+          Content-Type: application/json, application/xml
+          Accept: application/json, application/xml
+        body:
+          JSON|XML:
+            "name": geopackagebundle_name
+            "toml": {tegola_toml_s3_file_url, tegola_toml_s3_file_md5, list<tegola_toml_env_var_names>}  //note that this requires toml file stored on s3 to now contain md5 checksum metadata header - use "x-amz-meta-md5" custom metadata
+            "geopackages": list<{geopackage_s3_file_url, geopackage_s3_file_md5}>  //note that this requires geopackage file stored on s3 to now contain md5 checksum metadata header - use "x-amz-meta-md5" custom metadata
+      response (unauthorized):  //if request Authorization header missing, wrong Bearer, or expired
+        status:
+          403
+      response (authorized, successful create):
+        headers:
+          Content-Type: application/json, application/xml
+        status:
+          200
+        body:
+          JSON|XML:
+            "name": geopackagebundle_name
+            "toml": {tegola_toml_s3_file_url, tegola_toml_s3_file_md5, list<tegola_toml_env_var_names>}  //note that this requires toml file stored on s3 to now contain md5 checksum metadata header - use "x-amz-meta-md5" custom metadata
+            "geopackages": list<{geopackage_s3_file_url, geopackage_s3_file_md5}>  //note that this requires geopackage file stored on s3 to now contain md5 checksum metadata header - use "x-amz-meta-md5" custom metadata
+      response (authorized, failed create):
+        headers:
+          Content-Type: application/json, application/xml
+        status:
+          500
+        body:
+          "error-code": 1|2
+          "message": "GeoPackage Bundle %s already exists"|"Missing required field: '%s'"
+
+R.5:
+  Statement:
+    API shall provide (secured/authorized) function to update existing details for available GeoPackage-Bundle
+  Fulfillment/Dependencies:
+    SpringMVC REST-implementation w/ Spring Security (http config to specify authorized path and http method):
+      request: (secured) PUT /geopackagebundles
+        headers:
+          Authorization: Bearer <JSON Web Token> //client shall use value cached locally (on successful auth)
+          Content-Type: application/json, application/xml
+          Accept: application/json, application/xml
+        body:
+          JSON|XML:
+            "name": geopackagebundle_name
+            "toml": {tegola_toml_s3_file_url, tegola_toml_s3_file_md5, list<tegola_toml_env_var_names>}  //note that this requires toml file stored on s3 to now contain md5 checksum metadata header - use "x-amz-meta-md5" custom metadata
+            "geopackages": list<{geopackage_s3_file_url, geopackage_s3_file_md5}>  //note that this requires geopackage file stored on s3 to now contain md5 checksum metadata header - use "x-amz-meta-md5" custom metadata
+      response (unauthorized):  //if request Authorization header missing, wrong Bearer, or expired
+        status:
+          403
+      response (authorized, successful update):
+        headers:
+          Content-Type: application/json, application/xml
+        status:
+          200
+        body:
+          JSON|XML:
+            "name": geopackagebundle_name
+            "toml": {tegola_toml_s3_file_url, tegola_toml_s3_file_md5, list<tegola_toml_env_var_names>}  //note that this requires toml file stored on s3 to now contain md5 checksum metadata header - use "x-amz-meta-md5" custom metadata
+            "geopackages": list<{geopackage_s3_file_url, geopackage_s3_file_md5}>  //note that this requires geopackage file stored on s3 to now contain md5 checksum metadata header - use "x-amz-meta-md5" custom metadata
+      response (authorized, failed update):
+        headers:
+          Content-Type: application/json, application/xml
+        status:
+          500
+        body:
+          "error-code": 3|4
+          "message": "GeoPackage Bundle %s does not exist"|"Missing required field: '%s'"
