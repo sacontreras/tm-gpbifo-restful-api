@@ -63,7 +63,7 @@ R.1:
           JSON|XML:
             list<geopackagebundle_name>
 
-R.2:
+R.2.a:
   Statement:
     API shall provide function to read details of named GeoPackage-Bundle
   Fulfillment/Dependencies:
@@ -71,46 +71,70 @@ R.2:
       request: (unsecured) GET /geopackagebundles/{geopackagebundle_name}
         headers:
           Accept: application/json, application/xml
-      response (if geopackage bundle exists):
+      response:
         headers:
           Content-Type: application/json, application/xml
         body:
           JSON|XML:
             "toml": {tegola_toml_s3_file_url, tegola_toml_s3_file_md5, list<tegola_toml_env_var_names>}  //note that this requires toml file stored on s3 to now contain md5 checksum metadata header - use "x-amz-meta-md5" custom metadata
             "geopackages": list<{geopackage_s3_file_url, geopackage_s3_file_md5}>  //note that this requires geopackage file stored on s3 to now contain md5 checksum metadata header - use "x-amz-meta-md5" custom metadata
+
+R.2.b
+  Statement:
+    Implementation of R.2.a shall handle non-existent bundle gracefully
+  Fulfillment/Dependencies:
+    SpringMVC REST-implementation:
+      request: (unsecured) GET /geopackagebundles/{geopackagebundle_name}
+        headers:
+          Accept: application/json, application/xml
       response (if geopackage bundle does not exist):
         headers:
           Content-Type: application/json, application/xml
         status:
           500
         body:
-          "error-code": 3
+          "error-code": 1
           "message": "GeoPackage Bundle %s does not exist"
-R.3:
+
+R.3.a:
   Statement:
     API shall provide function for secured login and generate blowfish JWT authorization token for use of secured API resources (/geopackagebundles/admin/**)
-Fulfillment/Dependencies:
-  SpringMVC REST-implementation w/ Spring Security (Authentication) and io.jsonwebtoken jjwt artifact:
-    request: (unsecured) POST /geopackagebundles-admin/login
-      headers:
-        Content-Type: application/json, application/xml
-        Accept: application/json, application/xml
-      body:
-        JSON|XML:
-          "username": admin_username
-          "password": admin_password
-    response (successful auth):
-      headers:
-        Authorization: Bearer <JSON Web Token (from jjwt dep)> //client shall cache value locally
-      status:
-        200
-    response (failed auth):
-      status:
-        403
+  Fulfillment/Dependencies:
+    SpringMVC REST-implementation w/ Spring Security (Authentication) and io.jsonwebtoken jjwt artifact:
+      request: (unsecured) POST /geopackagebundles-admin/login
+        headers:
+          Content-Type: application/json, application/xml
+          Accept: application/json, application/xml
+        body:
+          JSON|XML:
+            "username": admin_username
+            "password": admin_password
+      response:
+        headers:
+          Authorization: Bearer <JSON Web Token (from jjwt dep)> //client shall cache value locally
+        status:
+          200
 
-R.4:
+R.3.b:
   Statement:
-    API shall provide (secured/authorized) function to create details for available GeoPackage-Bundle
+    Implementation of R.3.a shall handle failed authentication gracefully
+  Fulfillment/Dependencies:
+    SpringMVC REST-implementation w/ Spring Security (Authentication) and io.jsonwebtoken jjwt artifact:
+      request: (unsecured) POST /geopackagebundles-admin/login
+        headers:
+          Content-Type: application/json, application/xml
+          Accept: application/json, application/xml
+        body:
+          JSON|XML:
+            "username": admin_username
+            "password": admin_password
+      response (failed auth):
+        status:
+          403
+
+R.4.a:
+  Statement:
+    API shall provide authorized function to create details for available GeoPackage-Bundle
   Fulfillment/Dependencies:
     SpringMVC REST-implementation w/ Spring Security (http config to specify authorized path and http method):
       request: (secured) POST /geopackagebundles
@@ -123,10 +147,7 @@ R.4:
             "name": geopackagebundle_name
             "toml": {tegola_toml_s3_file_url, tegola_toml_s3_file_md5, list<tegola_toml_env_var_names>}  //note that this requires toml file stored on s3 to now contain md5 checksum metadata header - use "x-amz-meta-md5" custom metadata
             "geopackages": list<{geopackage_s3_file_url, geopackage_s3_file_md5}>  //note that this requires geopackage file stored on s3 to now contain md5 checksum metadata header - use "x-amz-meta-md5" custom metadata
-      response (unauthorized):  //if request Authorization header missing, wrong Bearer, or expired
-        status:
-          403
-      response (authorized, successful create):
+      response:
         headers:
           Content-Type: application/json, application/xml
         status:
@@ -136,18 +157,46 @@ R.4:
             "name": geopackagebundle_name
             "toml": {tegola_toml_s3_file_url, tegola_toml_s3_file_md5, list<tegola_toml_env_var_names>}  //note that this requires toml file stored on s3 to now contain md5 checksum metadata header - use "x-amz-meta-md5" custom metadata
             "geopackages": list<{geopackage_s3_file_url, geopackage_s3_file_md5}>  //note that this requires geopackage file stored on s3 to now contain md5 checksum metadata header - use "x-amz-meta-md5" custom metadata
-      response (authorized, failed create):
+
+R.4.b:
+  Statement:
+    Implementation of R.4.a shall handle authorized failure to create GeoPackage Bundle - GeoPackage already exists or Request body missing required field
+  Fulfillment/Dependencies:
+    SpringMVC REST-implementation w/ Spring Security (http config to specify authorized path and http method):
+      request: (secured) POST /geopackagebundles
+        headers:
+          Authorization: Bearer <JSON Web Token> //client shall use value cached locally (on successful auth)
+          Content-Type: application/json, application/xml
+          Accept: application/json, application/xml
+      response:
         headers:
           Content-Type: application/json, application/xml
         status:
           500
         body:
-          "error-code": 1|2
+          "error-code": 2|3
           "message": "GeoPackage Bundle %s already exists"|"Missing required field: '%s'"
 
-R.5:
+R.4.c:
   Statement:
-    API shall provide (secured/authorized) function to update existing details for available GeoPackage-Bundle
+    Implementation of R.4.a shall handle unauthorized access - Authorization header missing, content malformed or contains unauthorized Bearer/JSON Web Token expired - gracefully
+  Fulfillment/Dependencies:
+    SpringMVC REST-implementation w/ Spring Security (http config to specify authorized path and http method):
+      request: (secured) POST /geopackagebundles
+        headers:
+          Authorization: Bearer <JSON Web Token> //client shall use value cached locally (on successful auth)
+          Content-Type: application/json, application/xml
+          Accept: application/json, application/xml
+      response:
+        status:
+          403
+        body:
+          "error-code": 4|5
+          "message": "No authorization"|"Malformed or Unauthorized bearer"
+
+R.5.a:
+  Statement:
+    API shall provide authorized function to update existing details for available GeoPackage-Bundle
   Fulfillment/Dependencies:
     SpringMVC REST-implementation w/ Spring Security (http config to specify authorized path and http method):
       request: (secured) PUT /geopackagebundles
@@ -160,10 +209,7 @@ R.5:
             "name": geopackagebundle_name
             "toml": {tegola_toml_s3_file_url, tegola_toml_s3_file_md5, list<tegola_toml_env_var_names>}  //note that this requires toml file stored on s3 to now contain md5 checksum metadata header - use "x-amz-meta-md5" custom metadata
             "geopackages": list<{geopackage_s3_file_url, geopackage_s3_file_md5}>  //note that this requires geopackage file stored on s3 to now contain md5 checksum metadata header - use "x-amz-meta-md5" custom metadata
-      response (unauthorized):  //if request Authorization header missing, wrong Bearer, or expired
-        status:
-          403
-      response (authorized, successful update):
+      response:
         headers:
           Content-Type: application/json, application/xml
         status:
@@ -173,11 +219,49 @@ R.5:
             "name": geopackagebundle_name
             "toml": {tegola_toml_s3_file_url, tegola_toml_s3_file_md5, list<tegola_toml_env_var_names>}  //note that this requires toml file stored on s3 to now contain md5 checksum metadata header - use "x-amz-meta-md5" custom metadata
             "geopackages": list<{geopackage_s3_file_url, geopackage_s3_file_md5}>  //note that this requires geopackage file stored on s3 to now contain md5 checksum metadata header - use "x-amz-meta-md5" custom metadata
-      response (authorized, failed update):
+
+R.5.b:
+  Statement:
+    Implementation of R.5.a shall handle authorized failure to update GeoPackage bundle - identified GeoPackage bundle does not exist, or Request body missing required field
+  Fulfillment/Dependencies:
+    SpringMVC REST-implementation w/ Spring Security (http config to specify authorized path and http method):
+      request: (secured) PUT /geopackagebundles
+        headers:
+          Authorization: Bearer <JSON Web Token> //client shall use value cached locally (on successful auth)
+          Content-Type: application/json, application/xml
+          Accept: application/json, application/xml
+        body:
+          JSON|XML:
+            "name": geopackagebundle_name
+            "toml": {tegola_toml_s3_file_url, tegola_toml_s3_file_md5, list<tegola_toml_env_var_names>}  //note that this requires toml file stored on s3 to now contain md5 checksum metadata header - use "x-amz-meta-md5" custom metadata
+            "geopackages": list<{geopackage_s3_file_url, geopackage_s3_file_md5}>  //note that this requires geopackage file stored on s3 to now contain md5 checksum metadata header - use "x-amz-meta-md5" custom metadata
+      response:
         headers:
           Content-Type: application/json, application/xml
         status:
           500
         body:
-          "error-code": 3|4
+          "error-code": 1|3
           "message": "GeoPackage Bundle %s does not exist"|"Missing required field: '%s'"
+
+R.5.c:
+  Statement:
+    Implementation of R.5.a shall handle unauthorized access - Authorization header missing, content malformed or contains unauthorized Bearer/JSON Web Token expired - gracefully
+  Fulfillment/Dependencies:
+    SpringMVC REST-implementation w/ Spring Security (http config to specify authorized path and http method):
+      request: (secured) PUT /geopackagebundles
+        headers:
+          Authorization: Bearer <JSON Web Token> //client shall use value cached locally (on successful auth)
+          Content-Type: application/json, application/xml
+          Accept: application/json, application/xml
+        body:
+          JSON|XML:
+            "name": geopackagebundle_name
+            "toml": {tegola_toml_s3_file_url, tegola_toml_s3_file_md5, list<tegola_toml_env_var_names>}  //note that this requires toml file stored on s3 to now contain md5 checksum metadata header - use "x-amz-meta-md5" custom metadata
+            "geopackages": list<{geopackage_s3_file_url, geopackage_s3_file_md5}>  //note that this requires geopackage file stored on s3 to now contain md5 checksum metadata header - use "x-amz-meta-md5" custom metadata
+      response:
+        status:
+          403
+        body:
+          "error-code": 4|5
+          "message": "No authorization"|"Malformed or Unauthorized bearer"
