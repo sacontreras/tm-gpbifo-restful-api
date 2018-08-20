@@ -24,9 +24,9 @@ R.0.b
 
 R.0.c:
   Statement:
-    Root of API shall be exposed via "server.servlet.context-path=/tegola-mobile"
+    Root of API shall be exposed via "server.servlet.context-path=/geopackage-bundle-app-ws"
   Fulfillment/Dependencies:
-    add "server.servlet.context-path=/tegola-mobile" to Spring-Boot application.properties resources file
+    add "server.servlet.context-path=/geopackage-bundle-app-ws" to Spring-Boot application.properties resources file
 
 R.0.d:
   Statement:
