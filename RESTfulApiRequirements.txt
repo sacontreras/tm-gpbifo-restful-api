@@ -61,7 +61,7 @@ R.1:
           Content-Type: application/json, application/xml
         body:
           JSON|XML:
-            list<geopackagebundle_name>
+            list<geopackagebundle_details>
 
 R.2.a:
   Statement:
