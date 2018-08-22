@@ -2,8 +2,6 @@ package com.sacontreras.spatial.geopackage.bundle.app.ws.mvc.controller
 
 import com.sacontreras.spatial.geopackage.bundle.app.ws.mvc.model.request.RequestGpkgBundleInfoModel
 import com.sacontreras.spatial.geopackage.bundle.app.ws.mvc.model.response.GpkgbundleInfoResponseModel
-import com.sacontreras.spatial.geopackage.bundle.app.ws.mvc.model.response.S3GeopackageInfoResponseModel
-import com.sacontreras.spatial.geopackage.bundle.app.ws.mvc.model.response.S3TOMLInfoResponseModel
 import com.sacontreras.spatial.geopackage.bundle.app.ws.service.GpkgbundleInfoService
 import com.sacontreras.spatial.geopackage.bundle.app.ws.shared.dto.GpkgbundleDTO
 import org.modelmapper.ModelMapper

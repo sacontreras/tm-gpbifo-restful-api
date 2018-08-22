@@ -6,6 +6,7 @@ import com.sacontreras.spatial.geopackage.bundle.app.ws.service.GpkgbundleInfoSe
 import com.sacontreras.spatial.geopackage.bundle.app.ws.shared.Utils
 import com.sacontreras.spatial.geopackage.bundle.app.ws.shared.dto.GpkgbundleDTO
 import org.modelmapper.ModelMapper
+import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 
 @Service
@@ -39,6 +40,14 @@ class GpkgbundleInfoServiceImpl(val gpkgbundleRepository: GpkgbundleRepository, 
     }
 
     override fun getGpkgbundles(page: Int, limit: Int): List<GpkgbundleDTO> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        val list_gpkgbundleDTO = ArrayList<GpkgbundleDTO>()
+        val page_gpkgbundleEntity = gpkgbundleRepository.findAll(PageRequest.of(page, limit))
+        val list_gpkgbundleEntity = page_gpkgbundleEntity.getContent()
+        if (!list_gpkgbundleEntity.isEmpty()) {
+            val modelMapper = ModelMapper()
+            for (gpkgbundleEntity in list_gpkgbundleEntity)
+                list_gpkgbundleDTO.add(modelMapper.map(gpkgbundleEntity, GpkgbundleDTO::class.java))
+        }
+        return list_gpkgbundleDTO
     }
 }
