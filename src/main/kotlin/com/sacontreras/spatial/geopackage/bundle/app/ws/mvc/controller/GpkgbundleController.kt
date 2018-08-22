@@ -1,5 +1,6 @@
 package com.sacontreras.spatial.geopackage.bundle.app.ws.mvc.controller
 
+import com.sacontreras.spatial.geopackage.bundle.app.ws.io.repository.RepositoryConstants
 import com.sacontreras.spatial.geopackage.bundle.app.ws.mvc.model.request.RequestGpkgBundleInfoModel
 import com.sacontreras.spatial.geopackage.bundle.app.ws.mvc.model.response.GpkgbundleInfoResponseModel
 import com.sacontreras.spatial.geopackage.bundle.app.ws.service.GpkgbundleInfoService
@@ -43,7 +44,12 @@ class GpkgbundleController(val gpkgbundleInfoService: GpkgbundleInfoService) {
     }
 
     @GetMapping(produces = arrayOf(MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE))
-    fun getGpkgbundles(@RequestParam(value = "page", defaultValue = "0") page: Int, @RequestParam(value = "limit", defaultValue = "25") limit: Int): Resources<GpkgbundleInfoResponseModel> {
+    fun getGpkgbundles(
+        @RequestParam(value = "page", defaultValue = "0")
+        page: Int,
+        @RequestParam(value = "limit", defaultValue = RepositoryConstants.PAGE__LIMIT_SIZE__DEFAULT__AS_STRING)
+        limit: Int
+    ): Resources<GpkgbundleInfoResponseModel> {
         val list_gpkgbundleInfoResponse = ArrayList<GpkgbundleInfoResponseModel>()
         val list_gpkgbundleInfoDTO = gpkgbundleInfoService.getGpkgbundles(page, limit)
         if (!list_gpkgbundleInfoDTO.isEmpty()) {

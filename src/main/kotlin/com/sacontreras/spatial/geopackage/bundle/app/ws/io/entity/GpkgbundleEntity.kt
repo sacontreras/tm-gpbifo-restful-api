@@ -8,10 +8,10 @@ class GpkgbundleEntity @JvmOverloads constructor(
     @GeneratedValue
     var id: Long = -1,
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, length = EntityConstants.FIELD_LEN__ID, unique = true)
     var gpkgbundle_id: String = "",
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, length = FIELD_LEN__NAME, unique = true)
     var name: String = "",
 
     @OneToOne(mappedBy = "relatedGpkgbundle", cascade = arrayOf(CascadeType.ALL))
@@ -19,4 +19,8 @@ class GpkgbundleEntity @JvmOverloads constructor(
 
     @OneToMany(mappedBy = "relatedGpkgbundle", cascade = arrayOf(CascadeType.MERGE))
     var s3geopackages: List<S3GeopackageEntity> = ArrayList()
-)
+) {
+    companion object {
+        const val FIELD_LEN__NAME = 128
+    }
+}

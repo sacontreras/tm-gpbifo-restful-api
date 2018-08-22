@@ -8,13 +8,13 @@ class S3GeopackageEntity @JvmOverloads constructor(
     @GeneratedValue
     var id: Long = -1,
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, length = EntityConstants.FIELD_LEN__ID, unique = true)    //NOTE: "unique" column-behavior is not enforced in MySQL unless "length" is also given
     var geopackage_id: String = "",
 
     @Column(nullable = false)
     var s3url: String = "",
 
-    @Column(nullable = false, length = 32)  //ixed-length: 32 for 128-bit hex encoded md5 hash
+    @Column(nullable = false, length = EntityConstants.FIELD_LEN__MD5SUM)
     var md5sum: String = "",
 
     @ManyToOne

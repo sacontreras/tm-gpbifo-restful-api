@@ -1,5 +1,6 @@
 package com.sacontreras.spatial.geopackage.bundle.app.ws.service.impl
 
+import com.sacontreras.spatial.geopackage.bundle.app.ws.io.entity.EntityConstants
 import com.sacontreras.spatial.geopackage.bundle.app.ws.io.entity.GpkgbundleEntity
 import com.sacontreras.spatial.geopackage.bundle.app.ws.io.repository.GpkgbundleRepository
 import com.sacontreras.spatial.geopackage.bundle.app.ws.service.GpkgbundleInfoService
@@ -17,13 +18,13 @@ class GpkgbundleInfoServiceImpl(val gpkgbundleRepository: GpkgbundleRepository, 
 
         val s3tomlDTO = newGpkgbundleDTO.s3toml
         s3tomlDTO.relatedGpkgbundle = newGpkgbundleDTO
-        s3tomlDTO.toml_id = utils.generateRandomString(30)
+        s3tomlDTO.toml_id = utils.generateRandomString(EntityConstants.FIELD_LEN__ID)
         newGpkgbundleDTO.s3toml = s3tomlDTO
 
         for (i in 0 until newGpkgbundleDTO.s3geopackages.size) {
             val s3geopackageDTO = newGpkgbundleDTO.s3geopackages[i]
             s3geopackageDTO.relatedGpkgbundle = newGpkgbundleDTO
-            s3geopackageDTO.geopackage_id = utils.generateRandomString(30)
+            s3geopackageDTO.geopackage_id = utils.generateRandomString(EntityConstants.FIELD_LEN__ID)
             (ArrayList(newGpkgbundleDTO.s3geopackages))[i] = s3geopackageDTO
         }
 
@@ -31,7 +32,7 @@ class GpkgbundleInfoServiceImpl(val gpkgbundleRepository: GpkgbundleRepository, 
 
         //generate an id (public) for saving with repo
         val newGpkgbundleEntity = modelMapper.map(newGpkgbundleDTO, GpkgbundleEntity::class.java)
-        newGpkgbundleEntity.gpkgbundle_id = utils.generateRandomString(30)
+        newGpkgbundleEntity.gpkgbundle_id = utils.generateRandomString(EntityConstants.FIELD_LEN__ID)
 
         //save in repo
         val savedGpkgbundleEntity = gpkgbundleRepository.save(newGpkgbundleEntity)
