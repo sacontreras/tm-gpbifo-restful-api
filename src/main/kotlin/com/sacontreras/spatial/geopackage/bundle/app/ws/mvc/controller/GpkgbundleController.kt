@@ -18,16 +18,6 @@ class GpkgbundleController(val gpkgbundleInfoService: GpkgbundleInfoService) {
 
     @PostMapping(consumes = arrayOf(MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE), produces = arrayOf(MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE))
     fun createGpkgbundle(@RequestBody requestNewGpkgbundleInfo: RequestGpkgBundleInfoModel): Resource<GpkgbundleInfoResponseModel> {
-//        if (requestNewGpkgbundleInfo.getName() == null || requestNewGpkgbundleInfo.getName().trim().isEmpty())
-//            throw UserControllerException(String.format(ErrorMessages.MISSING_REQUIRED_FIELD.getMessage(), "name"))
-//        if (requestNewGpkgbundleInfo.getSurname() == null || requestNewGpkgbundleInfo.getSurname().trim().isEmpty())
-//            throw UserControllerException(String.format(ErrorMessages.MISSING_REQUIRED_FIELD.getMessage(), "surname"))
-//        if (requestNewGpkgbundleInfo.getBirthdate() == null)
-//            throw UserControllerException(String.format(ErrorMessages.MISSING_REQUIRED_FIELD.getMessage(), "birthdate"))
-//        if (requestNewGpkgbundleInfo.getEmail() == null || requestNewGpkgbundleInfo.getEmail().trim().isEmpty())
-//            throw UserControllerException(String.format(ErrorMessages.MISSING_REQUIRED_FIELD.getMessage(), "email"))
-//        if (requestNewGpkgbundleInfo.getPassword() == null || requestNewGpkgbundleInfo.getPassword().trim().isEmpty())
-//            throw UserControllerException(String.format(ErrorMessages.MISSING_REQUIRED_FIELD.getMessage(), "password"))
         val modelMapper = ModelMapper()
 
         //save info (mapped to DTO) to repository using the gpkgbundleinfo service

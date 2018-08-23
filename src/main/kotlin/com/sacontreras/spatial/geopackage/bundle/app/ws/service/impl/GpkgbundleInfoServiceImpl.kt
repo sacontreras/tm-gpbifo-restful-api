@@ -1,5 +1,7 @@
 package com.sacontreras.spatial.geopackage.bundle.app.ws.service.impl
 
+import com.sacontreras.spatial.geopackage.bundle.app.ws.exception.service.gpkgbundle.GpkgbundleServiceNewRecordFieldConstraintViolationException
+import com.sacontreras.spatial.geopackage.bundle.app.ws.exception.service.gpkgbundle.GpkgbundleServiceRecordAlreadyExists
 import com.sacontreras.spatial.geopackage.bundle.app.ws.io.entity.EntityConstants
 import com.sacontreras.spatial.geopackage.bundle.app.ws.io.entity.GpkgbundleEntity
 import com.sacontreras.spatial.geopackage.bundle.app.ws.io.repository.GpkgbundleRepository
@@ -13,8 +15,29 @@ import org.springframework.stereotype.Service
 @Service
 class GpkgbundleInfoServiceImpl(val gpkgbundleRepository: GpkgbundleRepository, val utils: Utils): GpkgbundleInfoService {
     override fun createGpkgbundle(newGpkgbundleDTO: GpkgbundleDTO): GpkgbundleDTO {
-//        if (gpkgbundleRepository.findByEmail(newUserDTO.getEmail()) != null)
-//            throw UserServiceImplException(String.format(ErrorMessages.RECORD_ALREADY_EXISTS.getMessage(), "USER", newUserDTO.getEmail()))
+        //validate business rules on DTO
+        if (gpkgbundleRepository.findByName(newGpkgbundleDTO.name) != null)
+            throw GpkgbundleServiceRecordAlreadyExists("gpkgbundle", String.format("name=='%s'", newGpkgbundleDTO.name))
+        if (newGpkgbundleDTO.name.trim().isEmpty())
+            throw GpkgbundleServiceNewRecordFieldConstraintViolationException("name is required")
+        if (newGpkgbundleDTO.s3toml.s3url.trim().isEmpty())
+            throw GpkgbundleServiceNewRecordFieldConstraintViolationException("s3toml.s3url is required")
+        val md5sum_len = newGpkgbundleDTO.s3toml.md5sum.trim().length
+        if (md5sum_len == 0)
+            throw GpkgbundleServiceNewRecordFieldConstraintViolationException("s3toml.md5sum is required")
+        else if(md5sum_len < EntityConstants.FIELD_LEN__MD5SUM)
+            throw GpkgbundleServiceNewRecordFieldConstraintViolationException(String.format("s3toml.md5sum must be %d characters in length but is only %d", EntityConstants.FIELD_LEN__MD5SUM, md5sum_len))
+        if (newGpkgbundleDTO.s3geopackages.isEmpty()) {
+            throw GpkgbundleServiceNewRecordFieldConstraintViolationException("s3geopackages is empty is required")
+        } else {
+            for (i in 0 until newGpkgbundleDTO.s3geopackages.size) {
+                val s3geopackage = newGpkgbundleDTO.s3geopackages[i]
+                if (s3geopackage.s3url.trim().isEmpty())
+                    throw GpkgbundleServiceNewRecordFieldConstraintViolationException(String.format("s3geopackage[%d].s3url is required", i))
+                if (s3geopackage.md5sum.trim().isEmpty())
+                    throw GpkgbundleServiceNewRecordFieldConstraintViolationException(String.format("s3geopackage[%d].md5sum is required", i))
+            }
+        }
 
         val s3tomlDTO = newGpkgbundleDTO.s3toml
         s3tomlDTO.relatedGpkgbundle = newGpkgbundleDTO

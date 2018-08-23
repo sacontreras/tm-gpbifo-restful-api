@@ -5,4 +5,6 @@ import org.springframework.data.repository.PagingAndSortingRepository
 import org.springframework.stereotype.Repository
 
 @Repository
-interface GpkgbundleRepository: PagingAndSortingRepository<GpkgbundleEntity, Long>
+interface GpkgbundleRepository: PagingAndSortingRepository<GpkgbundleEntity, Long> {
+    fun findByName(name: String): GpkgbundleEntity?
+}
