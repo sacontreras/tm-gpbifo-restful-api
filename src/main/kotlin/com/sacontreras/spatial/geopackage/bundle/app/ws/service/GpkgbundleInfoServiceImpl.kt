@@ -8,11 +8,19 @@ import com.sacontreras.spatial.geopackage.bundle.app.ws.io.repository.Gpkgbundle
 import com.sacontreras.spatial.geopackage.bundle.app.ws.shared.Utils
 import com.sacontreras.spatial.geopackage.bundle.app.ws.shared.dto.GpkgbundleDTO
 import org.modelmapper.ModelMapper
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 
 @Service
-class GpkgbundleInfoServiceImpl(val gpkgbundleRepository: GpkgbundleRepository, val utils: Utils): GpkgbundleInfoService {
+class GpkgbundleInfoServiceImpl: GpkgbundleInfoService {
+
+    @Autowired
+    private lateinit var gpkgbundleRepository: GpkgbundleRepository
+
+    @Autowired
+    private lateinit var utils: Utils
+
     override fun createGpkgbundle(newGpkgbundleDTO: GpkgbundleDTO): GpkgbundleDTO {
         //validate business rules on DTO
         if (gpkgbundleRepository.findByName(newGpkgbundleDTO.name) != null)

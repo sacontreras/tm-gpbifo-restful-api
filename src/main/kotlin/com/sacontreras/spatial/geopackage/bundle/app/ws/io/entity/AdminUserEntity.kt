@@ -12,13 +12,13 @@ class AdminUserEntity @JvmOverloads constructor(
     var id: Long = -1,
 
     @Column(nullable = false, length = EntityConstants.FIELD_LEN__ID, unique = true)
-    var user_id: String = "",
+    var user_id: String? = null,
 
     @Column(nullable = false, length = FIELD_LEN__EMAIL, unique = true)
     var email: String = "",
 
     @Column(nullable = false)
-    var password_encrypted: String = ""
+    var password_encrypted: String? = null
 ) {
     companion object {
         const val FIELD_LEN__EMAIL = 128

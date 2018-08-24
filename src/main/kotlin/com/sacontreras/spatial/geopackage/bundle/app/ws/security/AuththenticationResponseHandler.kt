@@ -31,7 +31,10 @@ import javax.servlet.http.HttpServletResponse
 @Component
 class AuththenticationResponseHandler : AuthenticationEntryPoint, AccessDeniedHandler, AuthenticationSuccessHandler, AuthenticationFailureHandler {
     @Autowired
-    private val springApplicationContext: SpringApplicationContext? = null
+    private lateinit var applicationPropertiesManager: ApplicationPropertiesManager
+
+    @Autowired
+    private lateinit var adminUserService: AdminUserService
 
     @Throws(IOException::class)
     private fun responseText(response: HttpServletResponse, content: String, contextType: String) {
@@ -121,13 +124,11 @@ class AuththenticationResponseHandler : AuthenticationEntryPoint, AccessDeniedHa
     @Throws(IOException::class, ServletException::class)
     override fun onAuthenticationSuccess(request: HttpServletRequest, response: HttpServletResponse, authResult: Authentication) {
         val username = (authResult.principal as User).username
-        val applicationPropertiesManager = springApplicationContext?.getBean("applicationPropertiesManager") as ApplicationPropertiesManager
         val token = Jwts.builder()
             .setSubject(username)
             .setExpiration(Date(System.currentTimeMillis() + applicationPropertiesManager.getJWTTTL()))
             .signWith(SignatureAlgorithm.HS512, applicationPropertiesManager.getJWTSecret())
             .compact()
-        val adminUserService = springApplicationContext?.getBean("adminUserServiceImpl") as AdminUserService
         val adminUserDTO = adminUserService.getUser(username)    //note that this is email in this case
         response.addHeader(HttpHeaders.AUTHORIZATION, SecurityConstants.AUTHORIZATION_TOKEN_PREFIX + token)
         response.addHeader("UserId", adminUserDTO.user_id)

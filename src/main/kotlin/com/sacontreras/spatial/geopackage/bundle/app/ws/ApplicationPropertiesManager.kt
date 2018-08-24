@@ -4,12 +4,24 @@ import org.springframework.core.env.Environment
 import org.springframework.stereotype.Component
 
 @Component
-class ApplicationPropertiesManager(var env: Environment) {
+class ApplicationPropertiesManager(private var env: Environment) {
+    fun getProperty(prop: String): String? {
+        return env.getProperty(prop)
+    }
+
     fun getJWTSecret(): String {
-        return env.getProperty("jwtsecret") ?: ""
+        return getProperty("jwtsecret") ?: ""
     }
 
     fun getJWTTTL(): Long {
-        return env.getProperty("jwtttl")?.toLong() ?: 0
+        return getProperty("jwtttl")?.toLong() ?: 0
+    }
+
+    fun getDefaultAdminUsername(): String {
+        return getProperty("gpkgbundleadmin.email") ?: ""
+    }
+
+    fun getDefaultAdminPassword(): String {
+        return getProperty("gpkgbundleadmin.password") ?: ""
     }
 }

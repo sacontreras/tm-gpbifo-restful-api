@@ -6,6 +6,7 @@ import com.sacontreras.spatial.geopackage.bundle.app.ws.mvc.model.response.Gpkgb
 import com.sacontreras.spatial.geopackage.bundle.app.ws.service.GpkgbundleInfoService
 import com.sacontreras.spatial.geopackage.bundle.app.ws.shared.dto.GpkgbundleDTO
 import org.modelmapper.ModelMapper
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.hateoas.Resource
 import org.springframework.hateoas.Resources
 
@@ -14,7 +15,10 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/gpkgbundles")    //http://localhost:8080/gpkgbundles
-class GpkgbundleController(val gpkgbundleInfoService: GpkgbundleInfoService) {
+class GpkgbundleController {
+    
+    @Autowired
+    private lateinit var gpkgbundleInfoService: GpkgbundleInfoService
 
     @PostMapping(consumes = arrayOf(MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE), produces = arrayOf(MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE))
     fun createGpkgbundle(@RequestBody requestNewGpkgbundleInfo: RequestGpkgBundleInfoModel): Resource<GpkgbundleInfoResponseModel> {
