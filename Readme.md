@@ -25,3 +25,5 @@ Set/export environment variables/values (values used in/by application.propertie
 1. `GEOPACKAGEBUNDLE_APP_WS__MYSQL_DB_HOST` - e.g. `localhost` if you installed MySQL locally
 2. `GEOPACKAGEBUNDLE_APP_WS__MYSQL_DB_PORT` - the default port for MySQL is `3306`, so use that value unless you changed it
 3. `GEOPACKAGEBUNDLE_APP_WS__JSON_WEB_TOKEN_SECRET` - this is the seed used for Sprint Security HTTP authentication - choose any value you like (but the more random and long it is, the better)
+4. `GEOPACKAGEBUNDLE_APP_WS__GPKGBUNDLEADMIN__EMAIL` - this is email address (also the user id) for the account used to execute admin functions with the API - e.g. creating new gpkgbundles
+5. `GEOPACKAGEBUNDLE_APP_WS__GPKGBUNDLEADMIN__PASSWORD` - the password for the gpkgbundle admin account

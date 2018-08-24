@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("/gpkgbundles")    //http://localhost:8080/gpkgbundles
 class GpkgbundleController {
-    
+
     @Autowired
     private lateinit var gpkgbundleInfoService: GpkgbundleInfoService
 
