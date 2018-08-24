@@ -50,7 +50,7 @@ R.0.e:
 
 R.1:
   Statement:
-    API shall provide function to read available GeoPackage-Bundle names
+    API shall provide function to read details of all available GeoPackage Bundles
   Fulfillment/Dependencies:
     SpringMVC REST-implementation:
       request: (unsecured) GET /geopackagebundles
@@ -65,7 +65,7 @@ R.1:
 
 R.2.a:
   Statement:
-    API shall provide function to read details of named GeoPackage-Bundle
+    API shall provide function to read details of single GeoPackage Bundle
   Fulfillment/Dependencies:
     SpringMVC REST-implementation:
       request: (unsecured) GET /geopackagebundles/{geopackagebundle_name}

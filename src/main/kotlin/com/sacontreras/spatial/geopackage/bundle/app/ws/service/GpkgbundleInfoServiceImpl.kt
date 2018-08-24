@@ -1,11 +1,10 @@
-package com.sacontreras.spatial.geopackage.bundle.app.ws.service.impl
+package com.sacontreras.spatial.geopackage.bundle.app.ws.service
 
-import com.sacontreras.spatial.geopackage.bundle.app.ws.exception.service.gpkgbundle.GpkgbundleServiceNewRecordFieldConstraintViolationException
-import com.sacontreras.spatial.geopackage.bundle.app.ws.exception.service.gpkgbundle.GpkgbundleServiceRecordAlreadyExists
+import com.sacontreras.spatial.geopackage.bundle.app.ws.exception.service.GpkgbundleServiceNewRecordFieldConstraintViolationException
+import com.sacontreras.spatial.geopackage.bundle.app.ws.exception.service.GpkgbundleServiceRecordAlreadyExists
 import com.sacontreras.spatial.geopackage.bundle.app.ws.io.entity.EntityConstants
 import com.sacontreras.spatial.geopackage.bundle.app.ws.io.entity.GpkgbundleEntity
 import com.sacontreras.spatial.geopackage.bundle.app.ws.io.repository.GpkgbundleRepository
-import com.sacontreras.spatial.geopackage.bundle.app.ws.service.GpkgbundleInfoService
 import com.sacontreras.spatial.geopackage.bundle.app.ws.shared.Utils
 import com.sacontreras.spatial.geopackage.bundle.app.ws.shared.dto.GpkgbundleDTO
 import org.modelmapper.ModelMapper

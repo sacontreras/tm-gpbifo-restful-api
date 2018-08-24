@@ -4,7 +4,6 @@ import java.io.Serializable
 import java.net.URL
 
 data class S3GeopackageDTO @JvmOverloads constructor(
-    var id: Long = -1,
     var geopackage_id: String = "",
     var s3url: String = "",
     var md5sum: String = "",

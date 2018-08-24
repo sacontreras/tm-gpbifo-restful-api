@@ -8,6 +8,6 @@ data class ErrorMessageResponseModel @JvmOverloads constructor(
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MMM-dd HH:mm:ss z")
     var timestap: Date = Date(),
     var message: String = ""
-): ResourceSupport() {
+) {
     constructor(message: String): this(Date(), message)
 }
