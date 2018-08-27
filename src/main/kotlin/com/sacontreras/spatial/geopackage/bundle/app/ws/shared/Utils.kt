@@ -5,11 +5,10 @@ import java.security.SecureRandom
 
 @Component
 class Utils {
-    private val RANDOM: SecureRandom
+    private val RANDOM: SecureRandom = SecureRandom()
     private val ALPHABET: String
 
     init {
-        RANDOM = SecureRandom()
         val sb_random = StringBuilder()
         // "0" through "9"
         for (i in 48..56)
