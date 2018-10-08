@@ -27,6 +27,8 @@
 	</properties>
 
 	<dependencies>
+        <!-- uses Tomcat as the default embedded container - for local development; works in conjuction w/ setting packaging to "jar" -->
+        <!-- comment out this dep for remote deployment to tomcat (on EC2) - i.e. when setting packaging to "war" -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -136,7 +138,7 @@
 						<arg>-Xjsr305=strict</arg>
 					</args>
 					<compilerPlugins>
-						<plugin>spring</plugin>
+						<plugin>spring</plugin> <!-- this is the Spring annotation processor - this provides our dependency injection -->
 					</compilerPlugins>
 				</configuration>
 				<dependencies>
@@ -149,6 +151,4 @@
 			</plugin>
 		</plugins>
 	</build>
-
-
 </project>
